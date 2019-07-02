@@ -35,7 +35,23 @@ namespace MenuReliableService
 
         public async Task<Response<IEnumerable<Menu>>> Get()
         {
-            throw new NotImplementedException();
+            Response<IEnumerable<Menu>> result = new Response<IEnumerable<Menu>>();
+
+            var cts = new CancellationTokenSource();
+            var token = cts.Token;
+            token.ThrowIfCancellationRequested();
+
+            var crcBreaker = this.circuitBreaker.Invoke(
+                async () =>
+                {
+                    menuActionService.InvokeGet(result);
+                },
+                async () =>
+                {
+                    menuFailActionService.InvokeGet(result);
+                });
+
+            return result;
         }
 
 
@@ -47,7 +63,7 @@ namespace MenuReliableService
             var token = cts.Token;
             token.ThrowIfCancellationRequested();
 
-            this.circuitBreaker.Invoke(
+            var crcBreaker = this.circuitBreaker.Invoke(
                 async () =>
                 {
                     menuActionService.InvokeGet(id, result);

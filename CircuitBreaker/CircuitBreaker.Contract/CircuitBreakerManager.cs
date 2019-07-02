@@ -1,6 +1,5 @@
 ﻿using Polly;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace CircuitBreaker.Contract
@@ -19,16 +18,16 @@ namespace CircuitBreaker.Contract
             var circuitBreaker = Policy
                 .Handle<Exception>()
                 .CircuitBreakerAsync(
-                    exceptionsAllowedBeforeBreaking: 2,
+                    exceptionsAllowedBeforeBreaking: 1,
                     durationOfBreak: TimeSpan.FromMilliseconds(resetTimeOut)
                 );
 
             var policy = Policy
                 .Handle<Exception>()
-                .FallbackAsync(() => failAction())
-                .Wrap(circuitBreaker);
+                .FallbackAsync((a) => failAction())
+                .WrapAsync(circuitBreaker);
 
-            var val = policy.ExecuteAsync(() => func());
+            policy.ExecuteAsync(() => func());
         }
     }
 }

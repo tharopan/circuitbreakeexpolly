@@ -1,5 +1,5 @@
 ﻿using CircuitBreaker.Contract.ReliableService.Models;
-using System;
+using System.Collections.Generic;
 
 namespace MenuReliableService.ActionServices
 {
@@ -7,7 +7,22 @@ namespace MenuReliableService.ActionServices
     {
         public void InvokeGet(string id, Response<Menu> result)
         {
-            throw new NotImplementedException();
+            result.Data = new Menu {
+                Description = "Test Fail Des",
+                Name = "Test Fail",
+            };
+        }
+
+        public void InvokeGet(Response<IEnumerable<Menu>> result)
+        {
+            result.Data = new List<Menu>()
+            {
+                new Menu
+                {
+                    Description = "Test Fail Des",
+                    Name = "Test Fail",
+                }
+            };
         }
     }
 }
